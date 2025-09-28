@@ -1,4 +1,5 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
+// src/articles/articles.service.ts
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 import { User } from '../users/user.entity'
@@ -10,49 +11,72 @@ import { UpdateArticleDto } from './dto/update-article.dto'
 export class ArticlesService {
   constructor(
     @InjectRepository(Article)
-    private articleRepo: Repository<Article>,
+    private readonly articleRepo: Repository<Article>,
   ) {}
 
-  async create(dto: CreateArticleDto, author: User) {
-    const article = this.articleRepo.create({ ...dto, author })
+  async create(dto: CreateArticleDto, userId: number) {
+    const user = await this.articleRepo.manager.getRepository(User).findOne({
+      where: { id: userId },
+    })
+
+    if (!user) {
+      throw new Error('User not found')
+    }
+
+    const article = this.articleRepo.create({
+      ...dto,
+      author: user,
+    })
     return this.articleRepo.save(article)
   }
 
   async findAll(page = 1, limit = 10, filters?: any) {
-    const qb = this.articleRepo.createQueryBuilder('article')
+    const query = this.articleRepo.createQueryBuilder('article')
       .leftJoinAndSelect('article.author', 'author')
       .skip((page - 1) * limit)
       .take(limit)
-      .orderBy('article.publishedAt', 'DESC')
 
     if (filters?.authorId) {
-      qb.andWhere('author.id = :authorId', { authorId: filters.authorId })
+      query.andWhere('author.id = :authorId', { authorId: filters.authorId })
     }
     if (filters?.publishedAfter) {
-      qb.andWhere('article.publishedAt > :after', { after: filters.publishedAfter })
-    }
-    if (filters?.publishedBefore) {
-      qb.andWhere('article.publishedAt < :before', { before: filters.publishedBefore })
+      query.andWhere('article.publishedAt >= :date', { date: filters.publishedAfter })
     }
 
-    const [data, total] = await qb.getManyAndCount()
-    return { data, total, page, limit }
+    const [items, total] = await query.getManyAndCount()
+    return { items, total, page, limit }
   }
 
   async findOne(id: number) {
-    const article = await this.articleRepo.findOne({ where: { id }, relations: ['author'] })
+    return this.articleRepo.findOne({ where: { id } })
+  }
+
+  async update(id: number, dto: UpdateArticleDto, userId: number) {
+    const article = await this.articleRepo.findOne({
+      where: { id },
+      relations: ['author'], // make sure author is loaded
+    })
+
     if (!article)
       throw new NotFoundException('Article not found')
-    return article
+    if (article.author.id !== userId)
+      throw new ForbiddenException('You are not the author of this article')
+
+    Object.assign(article, dto)
+    return this.articleRepo.save(article)
   }
 
-  async update(id: number, dto: UpdateArticleDto) {
-    await this.articleRepo.update(id, dto)
-    return this.findOne(id)
-  }
+  async remove(id: number, userId: number) {
+    const article = await this.articleRepo.findOne({
+      where: { id },
+      relations: ['author'], // load author relation
+    })
 
-  async remove(id: number) {
-    const article = await this.findOne(id)
+    if (!article)
+      throw new NotFoundException('Article not found')
+    if (article.author.id !== userId)
+      throw new ForbiddenException('You are not the author of this article')
+
     return this.articleRepo.remove(article)
   }
 }
