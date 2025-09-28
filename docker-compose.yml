@@ -2,7 +2,7 @@ version: "3.8"
 services:
   postgres:
     image: postgres:15
-    container_name: hospitals_postgres
+    container_name: CRUD_With_Cash_Postgres
     restart: always
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
@@ -16,7 +16,7 @@ services:
   #TODO Connect to our server about when we start the pgadmin container
   pgadmin:
     image: dpage/pgadmin4
-    container_name: hospitals_pgadmin
+    container_name: CRUD_With_Cash_PgAdmin
     restart: always
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
