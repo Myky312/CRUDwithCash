@@ -1,5 +1,6 @@
 import type { ConfigService } from '@nestjs/config'
 import type { DataSourceOptions } from 'typeorm'
+import { Article } from './articles/articles.entity'
 import { User } from './users/user.entity'
 
 export function getTypeOrmConfig(configService: ConfigService): DataSourceOptions {
@@ -12,7 +13,7 @@ export function getTypeOrmConfig(configService: ConfigService): DataSourceOption
     username: configService.get('POSTGRES_USER') || 'postgres',
     password: configService.get('POSTGRES_PASSWORD') || 'supersecret',
     database: configService.get('POSTGRES_DB') || 'hospitals',
-    entities: [User],
+    entities: [User, Article],
     migrations: [
       isCompiled
         ? 'dist/migrations/*.js' // prod: compiled JS
