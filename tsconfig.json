@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "ES6",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "rootDir": ".", // your source code and data-source.ts are in the project root
+    "module": "commonjs",
+    "strict": true,
+    "strictPropertyInitialization": false,
+    "outDir": "./dist", // compiled JS files go here
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true
+  },
+  "include": ["src/**/*", "data-source.ts"],
+  "exclude": ["node_modules", "dist"]
+}
