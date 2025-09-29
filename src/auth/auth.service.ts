@@ -1,10 +1,8 @@
-/* eslint-disable no-console */
 import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
 import { InjectRepository } from '@nestjs/typeorm'
 import * as bcrypt from 'bcrypt'
 import { Repository } from 'typeorm'
-
 import { User } from '../users/user.entity'
 import { LoginDto } from './dto/login.dto'
 import { RegisterDto } from './dto/register.dto'
@@ -29,19 +27,16 @@ export class AuthService {
   }
 
   async login(dto: LoginDto) {
-    console.log('Login attempt:', dto)
     const user = await this.usersRepo.findOne({ where: { email: dto.email } })
     if (!user)
       throw new UnauthorizedException('Invalid credentials')
 
     const match = await bcrypt.compare(dto.password, user.password)
-    console.log('Password match:', match)
     if (!match)
       throw new UnauthorizedException('Invalid credentials')
 
     const payload = { sub: user.id, email: user.email }
     const token = await this.jwtService.signAsync(payload)
-    console.log('JWT token:', token)
 
     return { access_token: token }
   }

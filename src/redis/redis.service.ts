@@ -20,16 +20,6 @@ export class RedisService implements OnModuleInit {
     this.redis.on('error', (err) => {
       console.error('Redis connection error:', err)
     })
-
-    // Test connection
-    try {
-      await this.redis.set('test', 'hello', 'EX', 5)
-      const value = await this.redis.get('test')
-      console.warn('Redis test value:', value)
-    }
-    catch (error) {
-      console.error('Redis test failed:', error)
-    }
   }
 
   async get(key: string): Promise<string | null> {
