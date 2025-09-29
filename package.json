@@ -10,7 +10,10 @@
     "migration:revert": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:revert -d data-source.ts",
     "format": "prettier --write \"src/**/*.ts\"",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+    "lint:fix": "eslint . --fix",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:cov": "jest --coverage"
   },
   "dependencies": {
     "@nestjs/cli": "^11.0.10",
@@ -34,12 +37,16 @@
   "devDependencies": {
     "@antfu/eslint-config": "^5.4.1",
     "@eslint/eslintrc": "^3.3.1",
+    "@nestjs/testing": "^11.1.6",
     "@types/bcrypt": "^6.0.0",
+    "@types/jest": "^30.0.0",
     "@types/passport-jwt": "^4.0.1",
     "@typescript-eslint/eslint-plugin": "^8.44.1",
     "@typescript-eslint/parser": "^8.44.1",
     "eslint": "^9.36.0",
     "eslint-plugin-import": "^2.32.0",
+    "jest": "^30.2.0",
+    "ts-jest": "^29.4.4",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
     "typeorm": "^0.3.27"
